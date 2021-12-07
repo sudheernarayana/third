@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+    
+    tools {
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "Maven"
+    }
+    stages {
+        stage('gitcheckout') {
+            steps {
+                git credentialsId: 'gitcred', url: 'https://github.com/kliakos/sparkjava-war-example.git'
+            }
+        }
+        stage('build') {
+            steps {
+              bat 'mvn clean install'
+            }
+        }
+        stage('deploy') {
+            steps {
+                deploy adapters: [tomcat8(credentialsId: 'tomcat-cred', path: '', url: 'http://localhost:7000/')], contextPath: 'sparkjava-war-example', war: ' **/*.war'
+            }
+        }
+    }
+}
